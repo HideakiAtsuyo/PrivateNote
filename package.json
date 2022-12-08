@@ -1,0 +1,30 @@
+{
+  "name": "privatenote",
+  "version": "1.0.0",
+  "description": "privnote.com Remake By HideakiAtsuyo",
+  "main": "./src/Main.js",
+  "scripts": {
+    "start": "(if not exist node_modules npm i) && node ./src/Main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HideakiAtsuyo/PrivateNote.git"
+  },
+  "keywords": [
+    "HideakiAtsuyo",
+    "PrivateNote",
+    "PrivNote"
+  ],
+  "author": "HideakiAtsuyo",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HideakiAtsuyo/PrivateNote/issues"
+  },
+  "homepage": "https://github.com/HideakiAtsuyo/PrivateNote#readme",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "mongoose": "^6.8.0"
+  }
+}

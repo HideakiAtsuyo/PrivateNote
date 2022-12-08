@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %> - Send notes that will self-destruct after being read </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="description" content="Share a confidential note via a web link that will self-destruct after it is read by your intended recipient." />
+    <meta name="application-name" content="<%= title %>" />
+    <meta name="msapplication-TileColor" content="#960000" />
+    <!-- <meta name="viewport" content="width=600">-->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <script type="text/javascript" src="./assets/js/lib/gibberish-aes.js"></script>
+    <script type="text/javascript" src="./assets/js/lib/TextEncoderLite.js"></script>
+    <script type="text/javascript" src="./assets/js/lib/b64.js"></script>
+    <script type="text/javascript" src="./assets/js/lib/promise.js"></script>
+    <script type="text/javascript" src="./assets/js/common.js"></script>
+    <script type="text/javascript" src="./assets/js/legacy.js"></script>
+    <link rel="stylesheet" type="text/css" href="./assets/css/style.css" />
+  </head>
+  <body>
+    <div id="header_bg">
+      <div id="header">
+        <h2>Send notes that will self-destruct after being read.</h2>
+      </div>
+    </div>
+    <div id="content" class="hidden">
+      <!-- ========== CONFIRM READ NOTE ========== -->
+      <div id="confirm_read_note" class="hidden">
+        <div id="error_link_incomplete" class="error_block hidden">
+          <h1>Note link incomplete</h1>
+          <p> The note link you opened is incomplete. The part after the # symbol is missing. <br> Instead of clicking over the link, try copying and pasting it in the browser address bar. </p>
+        </div>
+        <div id="link_ok">
+          <h1>Read and destroy?</h1>
+          <p> You&#39;re about to read and destroy the note with id <strong><%= noteId %> </strong>. <br><% if(has_manual_pass == "true") {%> <br>You will be asked for the password to read the note. If you don't have it, ask the person who sent you the note for it, before proceeding. <% } %> </p>
+          <div id="error_connection_read" class="error_block hidden"> Error talking to <%= title %> server. Please check your Internet connection and try again </div>
+          <div id="error_ajax_read" class="error_block hidden"></div>
+          <div class="section group">
+            <div class="col span_3_of_6">
+              <button id="confirm_button" class="primary_button">Yes, show me the note</button>
+            </div>
+            <div class="col span_3_of_6">
+              <button href="/" class="button">No, not now</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ========== FETCHING NOTE ========== -->
+      <div id="fetching_note" class="hidden">
+        <h1>Fetching...</h1>
+        <p>Please wait while the note is downloading from <%= title %>.</p>
+      </div>
+      <!-- ========== READ NOTE ========== -->
+      <div id="read_note" class="hidden">
+        <h1>Note contents</h1>
+        <div id="password_form">
+          <div class="warning_block"> Do not close or reload this page or you will lose the note forever. </div><% if(has_manual_pass == "true") {%>
+          <!-- NOTE PASSWORD -->
+          <h3>Manual password <a id="manual_password_help_toggle" class="help_button">?</a>
+          </h3>
+          <div class="section group">
+            <div class="col span_3_of_6">
+              <label> Enter the password to read this note <input id="note_password" type="password">
+                <span class="error hidden" id="error_password_incorrect"> Password incorrect. Please enter it again. </span>
+              </label>
+            </div>
+          </div>
+          <!-- NOTE PASSWORD --><% } else { %>
+          <!-- NOTE LINK INCOMPLETE -->
+          <h3>Note link incomplete</h3>
+          <div class="help_block"> The note link is incomplete or incorrect, and the note could not be decrypted. Please paste the link below, making sure all the characters after the # are included. </div>
+          <div class="section group">
+            <div class="col span_6_of_6">
+              <label> Paste the full note link below <input id="note_link_manual" type="text">
+                <span class="error hidden" id="error_password_incorrect"> Note link still incorrect. Please try again. </span>
+              </label>
+            </div>
+          </div>
+          <!-- NOTE LINK INCOMPLETE --><% } %> <div class="section group">
+            <div class="col span_3_of_6">
+              <button id="decrypt_button" class="primary_button">Proceed</button>
+            </div>
+          </div>
+        </div>
+        <div id="ok_content" class="hidden">
+          <div id="info_destroyed" class="warning_block hidden"> This note was destroyed. If you need to keep it, copy it before closing this window. </div>
+          <div id="info_expires" class="warning_block hidden"> This note will self-destruct in <span id="info_expires_text"></span>. <br>
+            <a id="note_link" href="https://<%= title %>.com/<%= noteId %>">https://<%= title %>.com/<%= noteId %> </a>
+            <!-- hash appended from js -->
+          </div>
+          <textarea id="note_contents" class="hidden" readonly></textarea>
+          <div id="error_connection_destroy" class="error_block hidden"> Error talking to <%= title %> server. Please check your Internet connection and try again </div>
+          <div id="error_ajax_destroy" class="error_block hidden"></div>
+          <div class="section group">
+            <div class="col span_2_of_6">
+              <button id="select_text" class="small_button">Select text</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+      <script type="text/javascript">
+        notes.set_device_type("desktop");
+        notes.set_note_id("<%= noteId %>");
+        notes.when_ready(function() { notes.init_read( <%= has_manual_pass == "true" %> ); });
+      </script>
+    </div>
+  </body>
+</html>

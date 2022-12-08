@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %> - Send notes that will self-destruct after being read </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="description" content="Share a confidential note via a web link that will self-destruct after it is read by your intended recipient.">
+    <meta name="application-name" content="<%= title %>">
+    <meta name="msapplication-TileColor" content="#960000">
+    <!-- <meta name="viewport" content="width=600">-->
+    <!-- <meta name="viewport" content="width=device-width,user-scalable=no"> -->
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <script type="text/javascript" src="./assets/js/lib/gibberish-aes.js"></script>
+    <script type="text/javascript" src="./assets/js/lib/TextEncoderLite.js"></script>
+    <script type="text/javascript" src="./assets/js/lib/b64.js"></script>
+    <script type="text/javascript" src="./assets/js/lib/promise.js"></script>
+    <script type="text/javascript" src="./assets/js/common.js"></script>
+    <script type="text/javascript" src="./assets/js/legacy.js"></script>
+    </script>
+    <link rel="stylesheet" type="text/css" href="./assets/css/style.css">
+  </head>
+  <body>
+    <div id="header_bg">
+      <div id="header">
+        <h2>Send notes that will self-destruct after being read.</h2>
+      </div>
+    </div>
+    <!-- content -->
+    <div id="content" class="">
+      <!-- ========== NEW NOTE ========== -->
+      <div id="new_note">
+        <div>
+          <h1 class="">New note <a id="new_note_help_toggle" class="help_button">?</a>
+          </h1>
+        </div>
+        <div id="new_note_help" class="section hidden help_block"> With <%= title %> you can send notes that will self-destruct after being read. <br> 1. Write the note below, encrypt it and get a link. <br> 2. Send the link to whom you want to read the note. <br> 3. The note will self-destruct after being read by the recipient. <br>
+          <br> By clicking the options button, you can specify a manual password to encrypt the note, set an expiration date and be notified when the note is destroyed. <br>
+          <br> To know more about how <%= title %> works, check out the <a href="/info/about">about page</a>.
+        </div>
+        <textarea id="note_raw" name="note_raw" rows="4" placeholder="Write your note here..."></textarea>
+        <div id="advanced_options" class="hidden">
+          <h3>Manual password</h3>
+          <div class="section group">
+            <div class="col span_3_of_6">
+              <label> Enter a custom password to encrypt the note <input id="manual_password" type="password">
+                <span id="very_weak_manual_password" class="caption very_weak hidden">Very weak</span>
+                <span id="weak_manual_password" class="caption weak hidden">Weak</span>
+                <span id="good_manual_password" class="caption good hidden">Good</span>
+                <span id="strong_manual_password" class="caption strong hidden">Strong</span>
+                <span id="very_strong_manual_password" class="caption very_strong hidden">Very strong</span>
+              </label>
+            </div>
+            <div class="col span_3_of_6">
+              <label> Confirm password <input id="manual_password_confirm" type="password">
+                <span class="error hidden" id="error_password_mismatch">The passwords do not match.</span>
+              </label>
+            </div>
+          </div>
+          <div class="section group hidden" id="advanced_options_tip"> Tip: bookmark the page now so you don't have to input these advanced options again. </div>
+        </div>
+        <div id="error_connection" class="error_block hidden"> Error talking to <%= title %> server. Please check your Internet connection and try again </div>
+        <div id="error_ajax" class="error_block hidden"></div>
+        <div id="error_note_is_empty" class="error_block hidden"> Error: the note text is empty. </div>
+        <div class="section group">
+          <div class="col span_2_of_6">
+            <button id="encrypt_note" class="primary_button">Create note</button>
+          </div>
+          <div class="col span_2_of_6 right">
+            <button id="advanced_options_show" class="button"> Show options <span id="options_on_notice_asterisk" class="hidden">(*)</span>
+            </button>
+            <button id="advanced_options_hide" class="button hidden"> Disable options</button>
+            <div class="hint hidden" id="options_on_notice">(*) some options set from the URL</div>
+          </div>
+        </div>
+      </div>
+      <!-- ========== PROCESSING ========== -->
+      <div id="creating_note" class="hidden">
+        <h1>Processing...</h1>
+        <p>Please wait while the note is encrypted in your browser and then stored in <%= title %>. </p>
+      </div>
+      <!-- ========== CREATED NOTE ========== -->
+      <div id="created_note" class="hidden">
+        <h1>Note link ready <a id="created_note_help_toggle" class="help_button">?</a>
+        </h1>
+        <div id="created_note_help" class="help_block hidden"> Copy the link, paste it into an email or instant message and send it to whom you want to read the note. <span id="created_note_with_pass_help" class="hidden"> Don't forget to send the password as well. Use a different method to send it for increased security. </span>
+        </div>
+        <!-- link and toolbar -->
+        <div class="section group">
+          <label>
+            <input id="note_link_input" type="text" readonly="">
+            <span id="info_read_once" class="caption hidden"> The note will self-destruct after reading it.</span>
+            <span id="info_expires" class="caption hidden"> The note will self-destruct in <span id="info_expires_text"></span>. </span>
+          </label>
+        </div>
+        <div class="section group">
+          <div class="col span_1_of_6">
+            <button id="select_link" class="small_button">Select link</button>
+          </div>
+          <div class="col span_1_of_6">
+            <a id="mailto_link" class="small_button" href="">E-mail link</a>
+          </div>
+          <div class="col span_2_of_6 right">
+            <!-- only for P_READ_ONCE -->
+            <a id="destroy_link" class="danger small_button hidden" href="">Destroy note now</a>
+            <!-- not for P_READ_ONCE -->
+            <a id="show_link" class="small_button hidden" href="">Read note</a>
+          </div>
+        </div>
+        <!-- only for manual password -->
+        <div id="note_password_block" class="hidden">
+          <h3>Manual password</h3>
+          <div class="section group">
+            <label> Password necessary to read the note <input id="note_password_input" type="text" readonly="">
+            </label>
+          </div>
+          <div class="section group">
+            <div class="col span_2_of_6">
+              <button id="show_password" class="small_button">Show password</button>
+              <button id="hide_password" class="small_button hidden">Hide password</button>
+            </div>
+            <div class="col span_2_of_6">
+              <button id="select_password" class="small_button hidden">Select password</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script type="text/javascript">
+        notes.set_device_type("desktop");
+        notes.when_ready(function() { notes.init_create(); });
+      </script>
+    </div>
+  </body>
+</html>
